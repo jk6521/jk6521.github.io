@@ -1,0 +1,178 @@
+#+AUTHOR:
+#+HUGO_BASE_DIR: ../
+#+HUGO_PAIRED_SHORTCODES: admonition
+#+HUGO_CATEGORIES: linux-tips
+#+HUGO_AUTO_SET_LASTMOD: t
+#+PROPERTY: header-args :noeval
+#+MACRO: ref @@hugo:[@@$1@@hugo:]({{< ref "$2" >}})@@
+#+MACRO: relref @@hugo:[@@$1@@hugo:]({{< relref "$2" >}})@@
+
+* Arch Linux Installation with /home directory :linux:arch:installation:
+:PROPERTIES:
+:EXPORT_HUGO_BUNDLE: linux-tips
+:EXPORT_FILE_NAME: index
+:EXPORT_DATE: <2023-11-07 Tue>
+:END:
+** Introduction
+I've searched whole internet about installing arch with /home partition but never found a complete one which could satisfy my needs, so it was always stitching many articles and guides. Having a /home partition comes with a lot of advantages but what I like is
+
+1. Keep your personal files in separate partition
+2. If you want to switch distro you don't need to format all your partitions, move every files instead just don't partition the /home one and all linux can use /home partition
+3. Your configuration stays the same, you are just switching distro or doing fresh installation again.
+I'd skip everything unlike others and let's dive into the content. You can always use the right side bar to jump to any section.
+#+begin_admonition
+In the following installation I have shown only the way for BIOS partition table
+#+end_admonition
+
+** Booting USB
+*** Downloading .iso file
+You can download the offcial arch linux iso from [[https://archlinux.org/download][this website]]. There you can find a lot of options to download, I will show the most popular 2 ways
+
+**** Torrent link
+If you head to the section ~BitTorrent~, you can see two options magnet link and torrent file. Just copy the magnet link by right clicking on it and use any popular torrent download softwares or applications. If you are using linux aria2c is a popular one.
+**** Direct ISO file
+If you scroll down a bit you can see a list of mirror links followed by country names, click on the nearest available mirro link. You can see the list of packages but you should download the first one which will be like ~archlinux-202x.xx.xx-x86_64.iso~
+*** Configuring USB
+**** Windows
+- Partition your USB in the ~FAT32~ format available in the format options
+- Righ click on the arch linux iso file and select Mount
+- Copy all the contents of the newly mounted drive
+- Paste everything in the newly formatted USB and eject
+**** Linux
+For linux it's pretty simple, use the ~dd~ command available in all flavors of linux.
+
+This is my recommended way of doing in linux, If you prefer other ways you can find a lot [[https://wiki.archlinux.org/title/USB_flash_installation_medium][here]]
+#+BEGIN_SRC shell
+dd bs=4M if=iso/path of=/dev/sdX conv=fsync oflag=direct status=progress
+#+END_SRC
+
+** Live boot mode
+After making the installation medium, find how to enter BIOS mode in your machine.
+
+Plug in the USB and enter into BIOS mode, select your USB and place it in top of the boot order.
+
+Power on the machine and you should be able to see arch linux booting up, leave everything as it and you will be welcomed with nothing but a terminal
+
+*** Check Internet
+If you are using any LAN connection, it will be automatically up and running verify that using ~ping~ command
+
+#+BEGIN_SRC shell
+ping google.com
+#+END_SRC
+
+**** Wifi
+If you are using Wifi, then you have to configure it using ~iwctl~
+#+BEGIN_SRC shell
+iwctl # enter command line mode
+station device scan #scan for available networks
+station device connect SSID # password will be asked to enter, you can use the TAB for autocompletion of device and SSID
+#+END_SRC
+
+Now try to ~ping google.com~
+
+*** Disk Partitioning
+Once you have connected the internet and machine is able to talk to internet, now we have the final and important procedure which is partitioning the disk.
+
+Create separate partitions using ~cfdisk~ which has friendly CLI interface compared to ~fdisk~
+
+once you are inside of ~cfdisk~ command, you can see a list(s) of device. If you want the installation to be standalone just wipe the whole disk and create new partition as you want and keep in mind we need at least three partitions.
+1. root partition ~/~ - ~Linux filesystem~
+2. home partition ~/home~ - ~Linux filesystem~
+3. swap partition - ~Linux Swap~
+
+After creating the partition choose the ~Write~ option and exit out of the CLI interface
+
+**** Creating filesystem
+Check the partition name using
+#+BEGIN_SRC shell
+fdisk -l
+#+END_SRC
+
+***** format the disks
+#+BEGIN_SRC shell
+mkfs.ext4 /dev/sdX #where X is the partition number of the root
+mkfs.ext4 /dev/sdX #where x here is the partition number of the home
+mkswap /dev/sdX #where x here is the partition number of the swap
+#+END_SRC
+
+***** mount the filesystems
+Here is the trick we do for our home partition, just simply mount into ~/mnt/home~.
+#+BEGIN_SRC shell
+mount /dev/sdX /mnt #where x here is the number of root partition
+mount /dev/sdX /mnt/home #where x here is the number of home partition
+swapon /dev/sdX #where x here is the number of swap partition
+#+END_SRC
+
+*** Installation
+Before installing base, we need to choose the fastes mirror to do that
+#+BEGIN_SRC shell
+pacman -Syy #sync the pacman repository
+pacman -S reflector #install reflector to get the fast and fresh mirrors
+reflector -c "US" -f 12 -l 10 -n 12 --save /etc/pacman.d/mirrorlist #save the mirros in a file
+#+END_SRC
+
+Once you are done getting the fresh mirror list, now we are ready to install the base
+
+#+BEGIN_SRC shell
+pacstrap /mnt base linux linux-firmware vim nano
+#+END_SRC
+
+You can install any other packages you might need like ~gnome~ for Desktop environment.
+
+** Post Installation
+Once it's done installing we have some other things to do too.
+
+*** Generate the fstab file
+#+BEGIN_SRC shell
+genfstab -U /mnt >> /mnt/etc/fstab
+#+END_SRC
+
+*** Change root into the newly installed system
+#+BEGIN_SRC shell
+arch-chroot /mnt
+#+END_SRC
+
+*** Setup timezone
+#+BEGIN_SRC shell
+timedatectl list-timezones
+timedatectl set-timezone Zone/City
+#+END_SRC
+
+*** Generate locale
+Pick your favorite editor and open up ~/etc/locale.gen~ then uncomment ~en_US.UTF-8 UTF-8~ line
+#+BEGIN_SRC shell
+vim /etc/locale.gen
+locale-gen
+echo LANG=en_US.UTF-8 > /etc/locale.conf
+#+END_SRC
+
+*** Network configuration
+Create a hostname
+#+BEGIN_SRC shell
+echo clowns >> /etc/hostname #replace clowns with your hostname or anything
+#+END_SRC
+
+Create hosts
+#+BEGIN_SRC shell
+touch /etc/hosts
+#+END_SRC
+
+#+BEGIN_SRC
+127.0.0.1   localhost
+::1         localhost
+127.0.0.1   hostname
+#+END_SRC
+
+** Final Steps
+Change the root password using ~passwd~ command
+
+*** Install old fashioned Grub
+#+BEGIN_SRC shell
+pacman -S grub
+grub-install /dev/sda #don't put numbers but just the disk
+grub-mkconfig -o /boot/grub/grub.cfg
+#+END_SRC
+
+After everything is done, just reboot the machine using ~reboot~ command and customize the user, groups and install any Desktop environment you wish, I will be covering two more blog posts which having gnome and hyprland separately. Yep that's what am using currently to write this post.
+** Disclaimer
+I have been using linux with various flavors for years and arch linux was never my choice, but somehow got attracted to it along the path and I installed it couple of times. Which means I'm not any master in arch linux neither, I've used the official arch linux documentation for taking notes and other online posts to write this article.

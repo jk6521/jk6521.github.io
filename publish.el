@@ -1,6 +1,6 @@
 ;;; publish.el -*- lexical-binding: t; -*-
 
-(setq npl-content-files '("blog.org"))
+(setq npl-content-files '("linux-tips.org"))
 
 ;; Install packages
 (require 'package)

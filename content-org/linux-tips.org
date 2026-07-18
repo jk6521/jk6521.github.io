@@ -1,4 +1,4 @@
-#+AUTHOR:
+#+AUTHOR:Joker Hacker
 #+HUGO_BASE_DIR: ../
 #+HUGO_PAIRED_SHORTCODES: admonition
 #+HUGO_CATEGORIES: linux-tips
@@ -26,16 +26,16 @@ In the following installation I have shown only the way for BIOS partition table
 
 ** Booting USB
 *** Downloading .iso file
-You can download the offcial arch linux iso from [[https://archlinux.org/download][this website]]. There you can find a lot of options to download, I will show the most popular 2 ways
+You can download the official arch linux iso from [[https://archlinux.org/download][this website]]. There you can find a lot of options to download, I will show the most popular 2 ways
 
 **** Torrent link
 If you head to the section ~BitTorrent~, you can see two options magnet link and torrent file. Just copy the magnet link by right clicking on it and use any popular torrent download softwares or applications. If you are using linux aria2c is a popular one.
 **** Direct ISO file
-If you scroll down a bit you can see a list of mirror links followed by country names, click on the nearest available mirro link. You can see the list of packages but you should download the first one which will be like ~archlinux-202x.xx.xx-x86_64.iso~
+If you scroll down a bit you can see a list of mirror links followed by country names, click on the nearest available mirror link. You can see the list of packages but you should download the first one which will be like ~archlinux-202x.xx.xx-x86_64.iso~
 *** Configuring USB
 **** Windows
 - Partition your USB in the ~FAT32~ format available in the format options
-- Righ click on the arch linux iso file and select Mount
+- Right click on the arch linux iso file and select Mount
 - Copy all the contents of the newly mounted drive
 - Paste everything in the newly formatted USB and eject
 **** Linux

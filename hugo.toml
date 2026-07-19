@@ -17,7 +17,7 @@ enableEmoji = true
   keywords = ["blog"]
   version = "0.2.X"
   defaultTheme = "auto"
-  gitRepo = "https://github.com/NethumL/jk6521.github.io.git"
+  gitRepo = "https://github.com/jk6521/jk6521.github.io.git"
   dateFormat = "January 2, 2006"
   fingerprint = "sha384"
 

@@ -1,4 +1,4 @@
-#+AUTHOR:Joker Hacker
+#+AUTHOR:
 #+HUGO_BASE_DIR: ../
 #+HUGO_PAIRED_SHORTCODES: admonition
 #+HUGO_CATEGORIES: linux-tips
